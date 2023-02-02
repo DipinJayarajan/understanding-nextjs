@@ -7,18 +7,17 @@ import Link from 'next/link'
 
 const inter = Inter({ subsets: ['latin'] })
 
-export default function Home() {
+export async function getServerSideProps(){
+  const res = await fetch ("https://jherr-pokemon.s3.us-west-1.amazonaws.com/index.json");
 
-  const [pokemon, setPokemon] = useState([]);
-
-  useEffect(() => {
-    async function getPokemon() {  
-      const res = await fetch ("https://jherr-pokemon.s3.us-west-1.amazonaws.com/index.json");
-      const data = await res.json();
-      setPokemon(data);
+  return {
+    props: {
+      pokemon: await res.json()
     }
-    getPokemon();
-  }, []);
+  }
+}
+
+export default function Home( {pokemon} ) {
 
   return (
     <>
@@ -28,13 +27,13 @@ export default function Home() {
       </Head>
       <div>
         <div className={styles.grid}>
-          {pokemon.map((pokemon) => (
-            <div className={styles.card}key={pokemon.id}>
-              <Link href={`/pokemon/${pokemon.id}`}>
+          {pokemon?.map((pokemons) => (
+            <div className={styles.card}key={pokemons.id}>
+              <Link href={`/pokemon/${pokemons.id}`}>
               
-                <img src={`https://jherr-pokemon.s3.us-west-1.amazonaws.com/${pokemon.image}`} alt={pokemon.name} />
+                <img src={`https://jherr-pokemon.s3.us-west-1.amazonaws.com/${pokemons.image}`} alt={pokemons.name} />
               
-              <h3>{pokemon.name}</h3>
+              <h3>{pokemons.name}</h3>
               </Link>
             </div>
           ))}
